@@ -7,7 +7,7 @@
 //
 
 #import "ViewController.h"
-
+#import "LaunchViewController.h"
 @interface ViewController ()
 
 @end
@@ -16,7 +16,14 @@
 
 - (void)viewDidLoad {
     [super viewDidLoad];
-    // Do any additional setup after loading the view, typically from a nib.
+    self.view.backgroundColor = [UIColor whiteColor];
+    UIButton *button = [UIButton buttonWithType:UIButtonTypeCustom];
+    button.backgroundColor = [UIColor blackColor];
+    button.bounds = CGRectMake(0, 0, 100, 50);
+    button.center = self.view.center;
+    [button addTarget:self action:@selector(showAnimation:) forControlEvents:UIControlEventTouchUpInside];
+    [button setTitle:@"Show" forState:UIControlStateNormal];
+    [self.view addSubview:button];
 }
 
 
@@ -25,5 +32,9 @@
     // Dispose of any resources that can be recreated.
 }
 
+- (void)showAnimation:(id)sender {
+    LaunchViewController *vc = [[LaunchViewController alloc] init];
+    [self.navigationController pushViewController:vc animated:YES];
+}
 
 @end
