@@ -21,7 +21,7 @@ static const NSTimeInterval fontTime = 0.2;//文字出现间隔时间
 static const CGFloat fontSpace = 5;//文字间距
 static const CGFloat fontDownH = 2;//文字下落高度
 static const CGFloat fontAnimationDuration = 0.5;//文字下落动画持续时间
-static const CGFloat whiteAnimationDuration = 1;//白色圆动画时间
+static const CGFloat whiteAnimationDuration = 0.7;//白色圆动画时间
 static const CGFloat originAnimationDuration = 0.4;//白色圆后面的浅色圆
 
 @class WhiteLayer;
@@ -183,7 +183,7 @@ static const CGFloat originAnimationDuration = 0.4;//白色圆后面的浅色圆
     centerWhite.removedOnCompletion = NO;
     centerWhite.fillMode = kCAFillModeForwards;
     centerWhite.values = [self getKeyAnimationValus];
-    centerWhite.timingFunction = [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionLinear];
+    centerWhite.timingFunction = [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseIn];
     return centerWhite;
 }
 
