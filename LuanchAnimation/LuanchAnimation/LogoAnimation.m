@@ -22,7 +22,7 @@ static const CGFloat fontSpace = 5;//文字间距
 static const CGFloat fontDownH = 2;//文字下落高度
 static const CGFloat fontAnimationDuration = 0.5;//文字下落动画持续时间
 static const CGFloat whiteAnimationDuration = 0.7;//白色圆动画时间
-static const CGFloat originAnimationDuration = 0.4;//白色圆后面的浅色圆
+static const CGFloat originAnimationDuration = 0.7;//白色圆后面的浅色圆
 
 @class WhiteLayer;
 @interface LogoAnimation()<CAAnimationDelegate>
@@ -162,7 +162,7 @@ static const CGFloat originAnimationDuration = 0.4;//白色圆后面的浅色圆
     spread.removedOnCompletion = NO;
     spread.fillMode = kCAFillModeForwards;
     spread.calculationMode = kCAAnimationLinear;
-    spread.values = @[@(Kradius*2+10),@(Kradius*2)];
+    spread.values = @[@(Kradius*2+20),@(Kradius*2 - 10),@(Kradius*2)];
     spread.timingFunction = [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionLinear];
     return spread;
 }
@@ -191,7 +191,13 @@ static const CGFloat originAnimationDuration = 0.4;//白色圆后面的浅色圆
     
     //动画开始执行
     //setp1:后面重橘色圆变大 结束时间:1+1.5 = 2.5 later
-    [originDarkView.layer addAnimation:[self spreadAnimation:0] forKey:@"transform.scale"];
+//    [originDarkView.layer addAnimation:[self spreadAnimation:0] forKey:@"transform.scale"];
+    originDarkView.transform = CGAffineTransformMakeScale(0.1, 0.1);
+    // 弹簧动画，参数分别为：时长，延时，弹性（越小弹性越大），初始速度
+    [UIView animateWithDuration: 0.6 delay:0.2 usingSpringWithDamping:0.5 initialSpringVelocity:15 options:0 animations:^{
+        // 放大
+        originDarkView.transform = CGAffineTransformMakeScale(Kradius*2, Kradius*2);
+    } completion:nil];
     //setp2: show logo
     [UIView animateWithDuration:0.5
                           delay:0.2
@@ -200,7 +206,7 @@ static const CGFloat originAnimationDuration = 0.4;//白色圆后面的浅色圆
                          logoImageView.alpha = 1.0;
                      } completion:nil];
     //setp3:show white round
-    [whiteLayer addAnimation:[self whiteAnimation:0.2] forKey:@"whiteAnimation"];
+    [whiteLayer addAnimation:[self whiteAnimation:0] forKey:@"whiteAnimation"];
     //setp4:sow url
     [self showUrlView:0.7];
     

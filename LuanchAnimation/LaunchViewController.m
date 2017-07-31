@@ -27,6 +27,8 @@
     [super viewDidLoad];
     self.view.backgroundColor = [UIColor orangeColor];
     
+    self.navigationController.navigationBar.hidden = YES;
+    
     view = [LogoAnimation addWithSuperView:self.view];
     
 }
