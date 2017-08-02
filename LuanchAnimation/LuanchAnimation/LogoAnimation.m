@@ -17,11 +17,10 @@ static const CGFloat Kradius = 80.0;//圆半径
 static const NSTimeInterval urlTimer = 0.5;//URL动画时间
 static const CGFloat whiteOvalMaxH = 20;//白色椭圆刚显示的时候的最大高度
 static const CGFloat fontToRoundH = 20;//下行文字距离圆的高度
-static const NSTimeInterval fontTime = 0.2;//文字出现间隔时间
 static const CGFloat fontSpace = 5;//文字间距
-static const CGFloat fontDownH = 2;//文字下落高度
-static const CGFloat fontAnimationDuration = 0.5;//文字下落动画持续时间
-static const CGFloat whiteAnimationDuration = 0.7;//白色圆动画时间
+static const CGFloat fontDownH = 10;//文字下落高度
+static const CGFloat fontAnimationDuration = 0.7;//文字下落动画持续时间
+static const CGFloat whiteAnimationDuration = 0.6;//白色圆动画时间
 static const CGFloat originAnimationDuration = 0.7;//白色圆后面的浅色圆
 
 @class WhiteLayer;
@@ -50,8 +49,8 @@ static const CGFloat originAnimationDuration = 0.7;//白色圆后面的浅色圆
         
         originDarkView = [[UIView alloc] init];
         originDarkView.backgroundColor = RGB(243, 134, 36);
-        originDarkView.bounds = CGRectMake(0, 0, 1, 1);
-        originDarkView.layer.cornerRadius = 0.5;
+        originDarkView.bounds = CGRectMake(0, 0, 2, 2);
+        originDarkView.layer.cornerRadius = 1;
         originDarkView.center = CGPointMake(frame.size.width/2, KtopSpace);
         [self addSubview:originDarkView];
         
@@ -113,17 +112,16 @@ static const CGFloat originAnimationDuration = 0.7;//白色圆后面的浅色圆
     
     CALayer *layer = imageview.layer;
     CGPoint position = layer.position;
-    CGPoint big = CGPointMake(position.x, position.y + fontDownH + 5);
-    CGPoint small = CGPointMake(position.x, position.y + fontDownH - 5);
-    CGPoint finish = CGPointMake(position.x, position.y + fontDownH);
+    CGPoint key1 = CGPointMake(position.x, position.y + fontDownH -4);
+    CGPoint key2 = CGPointMake(position.x, position.y + fontDownH);
     CAKeyframeAnimation *originy = [CAKeyframeAnimation animationWithKeyPath:@"position"];
-    originy.values = @[[NSValue valueWithCGPoint:big],[NSValue valueWithCGPoint:small],[NSValue valueWithCGPoint:finish]];
+    originy.values = @[[NSValue valueWithCGPoint:key1],
+                       [NSValue valueWithCGPoint:key2],];
     originy.timingFunction = [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionLinear];
     originy.beginTime = CACurrentMediaTime()+beginTime;
     originy.removedOnCompletion = NO;
     originy.fillMode = kCAFillModeForwards;
     originy.duration = fontAnimationDuration;
-    originy.delegate = self;
     [layer addAnimation:originy forKey:[NSString stringWithFormat:@"%ld",(long)imageview.tag]];
 }
 
@@ -188,16 +186,15 @@ static const CGFloat originAnimationDuration = 0.7;//白色圆后面的浅色圆
 }
 
 -(void)start{
-    
+    NSLog(@"%@", [NSString stringWithFormat:@"动画开始：%@",[NSDate date]]);
     //动画开始执行
-    //setp1:后面重橘色圆变大 结束时间:1+1.5 = 2.5 later
-//    [originDarkView.layer addAnimation:[self spreadAnimation:0] forKey:@"transform.scale"];
     originDarkView.transform = CGAffineTransformMakeScale(0.1, 0.1);
     // 弹簧动画，参数分别为：时长，延时，弹性（越小弹性越大），初始速度
-    [UIView animateWithDuration: 0.6 delay:0.2 usingSpringWithDamping:0.5 initialSpringVelocity:15 options:0 animations:^{
+    [UIView animateWithDuration: originAnimationDuration delay:0.2 usingSpringWithDamping:0.5 initialSpringVelocity:10 options:0 animations:^{
         // 放大
-        originDarkView.transform = CGAffineTransformMakeScale(Kradius*2, Kradius*2);
+        originDarkView.transform = CGAffineTransformMakeScale(Kradius+5, Kradius+5);
     } completion:nil];
+    
     //setp2: show logo
     [UIView animateWithDuration:0.5
                           delay:0.2
@@ -205,33 +202,63 @@ static const CGFloat originAnimationDuration = 0.7;//白色圆后面的浅色圆
                      animations:^{
                          logoImageView.alpha = 1.0;
                      } completion:nil];
+    
     //setp3:show white round
     [whiteLayer addAnimation:[self whiteAnimation:0] forKey:@"whiteAnimation"];
+    
     //setp4:sow url
     [self showUrlView:0.7];
     
+    //字体下落
     NSInteger i = 0;
     for (UIImageView *fontImageView in fontArray) {
-            [self startAnimationGroupWithLayer:fontImageView beginTime:fontTime*i+1.0];
+        [self fontDownAnimationBeginTime:i*0.2+0.6 tagerView:fontImageView];
         i ++;
     }
     
 }
 
+//字体下落动画
+-(void)fontDownAnimationBeginTime:(NSTimeInterval)beginTime tagerView:(UIView *)tagerView{
+    
+    
+    CGFloat key1Duration = 0.2;
+    CGFloat key2Duration = 0.2;
+    
+    CGPoint position = tagerView.center;
+    
+    CGPoint key1P = CGPointMake(position.x, position.y + fontDownH + 5);
+    CGPoint key2P = CGPointMake(position.x, position.y + fontDownH - 3);
+    CGPoint key3P = CGPointMake(position.x, position.y + fontDownH + 1);
+    CGPoint key4P = CGPointMake(position.x, position.y + fontDownH);
+
+    [UIView animateWithDuration:key1Duration
+                          delay:beginTime
+                        options:UIViewAnimationOptionCurveLinear
+                     animations:^{
+                         tagerView.alpha = 1.0;
+                         tagerView.center = key1P;
+                     } completion:^(BOOL finished) {
+                         [UIView animateWithDuration:key2Duration
+                                          animations:^{
+                                              tagerView.center = key2P;
+                                          } completion:^(BOOL finished) {
+                                              
+                                              [UIView animateWithDuration:key2Duration
+                                                               animations:^{
+                                                                   tagerView.center = key3P;
+                                                               } completion:^(BOOL finished) {
+                                                                   [UIView animateWithDuration:key2Duration animations:^{
+                                                                       tagerView.center = key4P;
+                                                                   }];
+                                                               }];
+                                          }];
+                     }];
+}
+
 #pragma mark -CAAnimationDelegate
-- (void)animationDidStart:(CAAnimation *)anim
-{
-    for (UIImageView *imageView in fontArray) {
-        CAAnimation *tagAn = [imageView.layer animationForKey:[NSString stringWithFormat:@"%ld",(long)imageView.tag]];
-        if (tagAn == anim) {
-            imageView.alpha = 1.0;
-        }
-    }
-    
-}
-- (void)animationDidStop:(CAAnimation *)anim finished:(BOOL)flag{
-    
-}
+- (void)animationDidStart:(CAAnimation *)anim{}
+- (void)animationDidStop:(CAAnimation *)anim finished:(BOOL)flag{}
 @end
 
 // White layer
